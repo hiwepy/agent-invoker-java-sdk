@@ -44,18 +44,18 @@ public class OpenClawAiAgentInvoker implements AiAgentInvoker {
     @Override
     public SubmitResult submit(AgentInvokeCmd cmd) {
         String taskId = cmd.getTaskId();
-        String providerAgentId = cmd.getProviderAgentId();
-        if (providerAgentId == null || providerAgentId.isEmpty()) {
+        String agentId = cmd.getAgentId();
+        if (agentId == null || agentId.isEmpty()) {
             return SubmitResult.builder()
                     .taskId(taskId)
                     .status(SubmitResult.InvokeStatus.REJECTED)
-                    .message("Provider agentId is required")
+                    .message("agentId is required")
                     .build();
         }
 
         try {
             InvokeAgentRequest request = new InvokeAgentRequest();
-            request.setAgentId(providerAgentId);
+            request.setAgentId(agentId);
             request.setMessage(cmd.getEnhancedPrompt());
             request.setName("Generation");
             request.setWakeMode("now");

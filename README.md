@@ -19,7 +19,7 @@ router.register(new OpenClawAiAgentInvoker(openClawClient, "http://localhost:708
 
 AgentInvokeCmd cmd = AgentInvokeCmd.builder()
     .taskId("task-001")
-    .providerAgentId("main")
+    .agentId("main")
     .providerCode("openclaw")
     .enhancedPrompt("Generate content...")
     .build();

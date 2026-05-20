@@ -14,7 +14,8 @@ public class AgentInvokeCmd {
     private String userId;
     private String channel;
     private String businessAgentId;
-    private String providerAgentId;
+    /** 目标 Agent 标识，由 adapter 翻译为各 Provider 协议中的 agent 字段。 */
+    private String agentId;
     private String providerCode;
     private String enhancedPrompt;
     private Map<String, Object> variables;
@@ -34,8 +35,11 @@ public class AgentInvokeCmd {
     public String getBusinessAgentId() { return businessAgentId; }
     public void setBusinessAgentId(String businessAgentId) { this.businessAgentId = businessAgentId; }
 
-    public String getProviderAgentId() { return providerAgentId; }
-    public void setProviderAgentId(String providerAgentId) { this.providerAgentId = providerAgentId; }
+    /** 返回目标 Agent 标识。 */
+    public String getAgentId() { return agentId; }
+
+    /** 设置目标 Agent 标识。 */
+    public void setAgentId(String agentId) { this.agentId = agentId; }
 
     public String getProviderCode() { return providerCode; }
     public void setProviderCode(String providerCode) { this.providerCode = providerCode; }
@@ -63,7 +67,8 @@ public class AgentInvokeCmd {
         public Builder userId(String v) { cmd.userId = v; return this; }
         public Builder channel(String v) { cmd.channel = v; return this; }
         public Builder businessAgentId(String v) { cmd.businessAgentId = v; return this; }
-        public Builder providerAgentId(String v) { cmd.providerAgentId = v; return this; }
+        /** 设置目标 Agent 标识。 */
+        public Builder agentId(String v) { cmd.agentId = v; return this; }
         public Builder providerCode(String v) { cmd.providerCode = v; return this; }
         public Builder enhancedPrompt(String v) { cmd.enhancedPrompt = v; return this; }
         public Builder variables(Map<String, Object> v) { cmd.variables = v; return this; }

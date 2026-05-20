@@ -82,7 +82,7 @@ class AiAgentInvokerTest {
                 .userId("u1")
                 .channel("xiaohongshu")
                 .businessAgentId("agent-1")
-                .providerAgentId("main")
+                .agentId("main")
                 .providerCode("openclaw")
                 .enhancedPrompt("test prompt")
                 .taskId("task-001")
@@ -91,6 +91,7 @@ class AiAgentInvokerTest {
 
         assertEquals("t1", cmd.getTenantId());
         assertEquals("u1", cmd.getUserId());
+        assertEquals("main", cmd.getAgentId());
         assertEquals("openclaw", cmd.getProviderCode());
     }
 
