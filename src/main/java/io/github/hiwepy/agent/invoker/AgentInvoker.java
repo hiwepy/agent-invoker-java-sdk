@@ -8,7 +8,7 @@ package io.github.hiwepy.agent.invoker;
  * @author wandl
  * @since 1.0.0
  */
-public interface AiAgentInvoker {
+public interface AgentInvoker {
 
     /** Provider 唯一标识（如 "openclaw"、"spring-ai"），用于多实现路由与可观测打点。 */
     String providerCode();

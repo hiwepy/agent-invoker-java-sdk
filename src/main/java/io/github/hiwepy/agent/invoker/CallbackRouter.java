@@ -5,9 +5,9 @@ package io.github.hiwepy.agent.invoker;
  */
 public class CallbackRouter {
 
-    private final AiAgentInvokerRouter invokerRouter;
+    private final AgentInvokerRouter invokerRouter;
 
-    public CallbackRouter(AiAgentInvokerRouter invokerRouter) {
+    public CallbackRouter(AgentInvokerRouter invokerRouter) {
         this.invokerRouter = java.util.Objects.requireNonNull(invokerRouter, "invokerRouter");
     }
 
@@ -21,7 +21,7 @@ public class CallbackRouter {
             code = "openclaw";
             payload.setProviderCode(code);
         }
-        AiAgentInvoker invoker = invokerRouter.route(code);
+        AgentInvoker invoker = invokerRouter.route(code);
         return invoker.handleCallback(payload);
     }
 }
