@@ -11,6 +11,7 @@ import os
 import pathlib
 import re
 import sys
+from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 POM = ROOT / "pom.xml"
@@ -334,7 +335,14 @@ def apply_aliyun_distribution_management() -> None:
     POM.write_text(stripped[:pos] + "\n" + ALIYUN_DM + "\n" + stripped[pos:], encoding="utf-8")
 
 
-SNAPSHOT_SUFFIX = f"{os.environ.get('RELEASE_DATE', '20260520')}-SNAPSHOT"
+def _snapshot_suffix() -> str:
+    """{YYYYMMDD}-SNAPSHOT；日期来自 RELEASE_DATE 或当天。"""
+    raw = os.environ.get("RELEASE_DATE", "").strip()
+    day = raw if raw else date.today().strftime("%Y%m%d")
+    return f"{day}-SNAPSHOT"
+
+
+SNAPSHOT_SUFFIX = _snapshot_suffix()
 
 
 def render(branch: str) -> None:
