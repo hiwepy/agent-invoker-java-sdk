@@ -198,7 +198,7 @@ def write_minimal_j8(version: str) -> None:
 
 {COMMON_META}
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -254,7 +254,7 @@ def write_full_j8_27(version: str) -> None:
     <version>{version}</version>
     <packaging>jar</packaging>
     <name>${{project.groupId}}:${{project.artifactId}}</name>
-    <description>AI Agent Invoker abstraction SDK — Spring Boot 2.7.x line (JDK 8)</description>
+    <description>AI Agent Invoker abstraction SDK — Spring Boot 2.7.x line (JDK 11)</description>
     <url>https://github.com/hiwepy/${{project.artifactId}}</url>
 
 {COMMON_META}
