@@ -7,14 +7,16 @@ AI Agent Invoker abstraction SDK — Provider-agnostic AI agent invocation for J
 Provides a unified abstraction for invoking AI agents across different providers (OpenClaw, Spring AI, Bedrock, etc.).
 
 - **`AiAgentInvoker`** — interface for submitting AI tasks, canceling, and handling callbacks
-- **`AiAgentInvokerRouter`** — routes to the correct provider based on `providerCode`
+- **`AiAgentInvokerRouter`** — routes to the correct provider based on `providerCode` and `defaultProvider`
 - **`CallbackRouter`** — routes callbacks to the correct provider adapter
 - **`OpenClawAiAgentInvoker`** — OpenClaw provider adapter (requires `openclaw-java-sdk`)
+- **`OpenClawInvokeRequestMapper`** — maps `AgentInvokeCmd` to OpenClaw `InvokeAgentRequest`
 
 ## Usage
 
 ```java
 AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+router.setDefaultProvider("openclaw");
 router.register(new OpenClawAiAgentInvoker(openClawClient, "http://localhost:7088"));
 
 AgentInvokeCmd cmd = AgentInvokeCmd.builder()
@@ -22,11 +24,40 @@ AgentInvokeCmd cmd = AgentInvokeCmd.builder()
     .agentId("main")
     .providerCode("openclaw")
     .enhancedPrompt("Generate content...")
+    .callbackUrl("http://localhost:7088/api/generation/save")  // optional; overrides callback base URL
+    .tenantId("t1")
+    .userId("u1")
+    .channel("xiaohongshu")
+    .variables(Collections.singletonMap("tone", "casual"))
     .build();
 
 AiAgentInvoker invoker = router.route("openclaw");
 SubmitResult result = invoker.submit(cmd);
 ```
+
+### OpenClaw callback URL
+
+OpenClaw Gateway Hooks (`POST /hooks/agent`) has no dedicated `callbackUrl` field. The adapter:
+
+1. Resolves URL from `AgentInvokeCmd.callbackUrl`, else adapter `callbackBaseUrl`
+2. Embeds the URL and `task_id` / metadata in the agent `message` for OpenClaw to POST results back
+
+### Cancel
+
+`OpenClawAiAgentInvoker.cancel(taskId)` tracks `taskId → runId` after successful submit. The HTTP SDK has no run-cancel API; cancel sends a best-effort `wake` signal when a runId is known.
+
+## Configuration (Spring Boot)
+
+Use **`openclaw-spring-boot-starter`** for `OpenClawClient` (`openclaw.*`). Use **`agent-invoker-spring-boot-starter`** for routing (`agents.provider.*`):
+
+| Key | Purpose |
+|-----|---------|
+| `agents.provider.default-provider` | Router fallback when `providerCode` is empty |
+| `agents.provider.openclaw.enabled` | Enable OpenClaw adapter |
+| `agents.provider.openclaw.callback-base-url` | Adapter callback base (overrides `openclaw.callback-base-url` when set) |
+| `openclaw.gateway-base-url` | Gateway URL for `OpenClawClient` |
+| `openclaw.hooks-token` | Webhook auth for `OpenClawClient` |
+| `openclaw.callback-base-url` | Bridged to adapter when agent-invoker key is unset |
 
 ## Multi-Version Support
 
