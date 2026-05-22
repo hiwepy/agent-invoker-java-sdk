@@ -20,11 +20,21 @@ class AiAgentInvokerTest {
     @Test
     void shouldDefaultToOpenClawWhenNullProviderCode() {
         AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+        router.setDefaultProvider("openclaw");
         try {
             router.route((String) null);
         } catch (AgentInvokeException e) {
             assertTrue(e.getMessage().contains("openclaw"));
         }
+    }
+
+    @Test
+    void shouldUseConfiguredDefaultProvider() {
+        AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+        router.setDefaultProvider("custom");
+        assertEquals("custom", router.getDefaultProvider());
+        AgentInvokeException ex = assertThrows(AgentInvokeException.class, () -> router.route((String) null));
+        assertTrue(ex.getMessage().contains("custom"));
     }
 
     @Test
