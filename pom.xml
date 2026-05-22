@@ -109,35 +109,35 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${{slf4j.version}}</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${{jackson.version}}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.hiwepy</groupId>
             <artifactId>openclaw-java-sdk</artifactId>
-            <version>${{openclaw-java-sdk.version}}</version>
+            <version>${openclaw-java-sdk.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${{lombok.version}}</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${{junit.version}}</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>${{slf4j.version}}</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
