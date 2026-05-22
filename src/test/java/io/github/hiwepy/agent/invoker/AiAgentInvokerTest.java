@@ -1,10 +1,7 @@
 package io.github.hiwepy.agent.invoker;
 
-import io.github.hiwepy.agent.invoker.openclaw.OpenClawAiAgentInvoker;
 import io.github.hiwepy.agent.invoker.openclaw.OpenClawCallbackParser;
 import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,14 +9,14 @@ class AiAgentInvokerTest {
 
     @Test
     void shouldRouteByProviderCode() {
-        AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+        AgentInvokerRouter router = new AgentInvokerRouter();
         // Without any registered invokers, routing should throw
         assertThrows(AgentInvokeException.class, () -> router.route("openclaw"));
     }
 
     @Test
     void shouldDefaultToOpenClawWhenNullProviderCode() {
-        AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+        AgentInvokerRouter router = new AgentInvokerRouter();
         router.setDefaultProvider("openclaw");
         try {
             router.route((String) null);
@@ -30,7 +27,7 @@ class AiAgentInvokerTest {
 
     @Test
     void shouldUseConfiguredDefaultProvider() {
-        AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+        AgentInvokerRouter router = new AgentInvokerRouter();
         router.setDefaultProvider("custom");
         assertEquals("custom", router.getDefaultProvider());
         AgentInvokeException ex = assertThrows(AgentInvokeException.class, () -> router.route((String) null));
@@ -119,7 +116,7 @@ class AiAgentInvokerTest {
 
     @Test
     void callbackRouterShouldDelegate() {
-        AiAgentInvokerRouter router = new AiAgentInvokerRouter();
+        AgentInvokerRouter router = new AgentInvokerRouter();
         CallbackRouter callbackRouter = new CallbackRouter(router);
 
         RawCallbackPayload payload = RawCallbackPayload.builder()

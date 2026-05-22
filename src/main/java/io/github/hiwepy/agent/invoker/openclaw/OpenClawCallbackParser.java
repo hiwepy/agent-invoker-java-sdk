@@ -3,8 +3,7 @@ package io.github.hiwepy.agent.invoker.openclaw;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.hiwepy.agent.invoker.CallbackOutcome;
 import io.github.hiwepy.agent.invoker.RawCallbackPayload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -12,9 +11,8 @@ import java.util.Map;
 /**
  * OpenClaw 回调解析器。将 OpenClaw Webhook 回调 JSON 解析为业务语义的 {@link CallbackOutcome}。
  */
+@Slf4j
 public class OpenClawCallbackParser {
-
-    private static final Logger log = LoggerFactory.getLogger(OpenClawCallbackParser.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public CallbackOutcome parse(RawCallbackPayload payload) {

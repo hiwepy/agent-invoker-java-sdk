@@ -1,5 +1,7 @@
 package io.github.hiwepy.agent.invoker;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,16 +17,21 @@ import java.util.Objects;
  * AiAgentInvoker invoker = router.route("openclaw");
  * </pre>
  */
-public class AiAgentInvokerRouter {
+@Getter
+public class AgentInvokerRouter {
 
     private static final String FALLBACK_DEFAULT_PROVIDER = "openclaw";
 
-    private final List<AiAgentInvoker> invokers = new ArrayList<AiAgentInvoker>();
+    private final List<AgentInvoker> invokers = new ArrayList<AgentInvoker>();
+    /**
+     * -- GETTER --
+     * 返回当前默认 Provider 代码。
+     */
     private String defaultProvider = FALLBACK_DEFAULT_PROVIDER;
 
-    public AiAgentInvokerRouter() {}
+    public AgentInvokerRouter() {}
 
-    public AiAgentInvokerRouter(List<AiAgentInvoker> invokers) {
+    public AgentInvokerRouter(List<AgentInvoker> invokers) {
         if (invokers != null) {
             this.invokers.addAll(invokers);
         }
@@ -41,18 +48,13 @@ public class AiAgentInvokerRouter {
                 : defaultProvider;
     }
 
-    /** 返回当前默认 Provider 代码。 */
-    public String getDefaultProvider() {
-        return defaultProvider;
-    }
-
     /** 注册一个 Provider 实现。 */
-    public void register(AiAgentInvoker invoker) {
+    public void register(AgentInvoker invoker) {
         this.invokers.add(Objects.requireNonNull(invoker, "invoker"));
     }
 
     /** 根据 providerCode 路由；null 或空字符串回退到 {@link #getDefaultProvider()}。 */
-    public AiAgentInvoker route(String providerCode) {
+    public AgentInvoker route(String providerCode) {
         String code = (providerCode == null || providerCode.isEmpty()) ? defaultProvider : providerCode;
         return invokers.stream()
                 .filter(it -> it.providerCode().equals(code))
@@ -61,9 +63,8 @@ public class AiAgentInvokerRouter {
     }
 
     /** 根据 cmd 中的 providerCode 路由。 */
-    public AiAgentInvoker route(AgentInvokeCmd cmd) {
+    public AgentInvoker route(AgentInvokeCmd cmd) {
         return route(cmd != null ? cmd.getProviderCode() : null);
     }
 
-    public List<AiAgentInvoker> getInvokers() { return invokers; }
 }
