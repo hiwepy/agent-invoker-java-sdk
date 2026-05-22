@@ -11,6 +11,9 @@ import io.github.hiwepy.openclaw.OpenClawClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * OpenClaw 适配器：实现 {@link AiAgentInvoker}，将业务语义翻译为 OpenClaw Gateway Webhook 协议。
  *
@@ -28,7 +31,12 @@ public class OpenClawAiAgentInvoker implements AiAgentInvoker {
     private final OpenClawClient openClawClient;
     private final OpenClawCallbackParser callbackParser;
     private final String callbackBaseUrl;
+    private final ConcurrentMap<String, String> taskIdToRunId = new ConcurrentHashMap<String, String>();
 
+    /**
+     * @param openClawClient   OpenClaw SDK 客户端
+     * @param callbackBaseUrl  adapter 级 callback 基础 URL（可被 {@link AgentInvokeCmd#getCallbackUrl()} 覆盖）
+     */
     public OpenClawAiAgentInvoker(OpenClawClient openClawClient,
                                   String callbackBaseUrl) {
         this.openClawClient = java.util.Objects.requireNonNull(openClawClient, "openClawClient");
@@ -54,12 +62,9 @@ public class OpenClawAiAgentInvoker implements AiAgentInvoker {
         }
 
         try {
-            InvokeAgentRequest request = new InvokeAgentRequest();
-            request.setAgentId(agentId);
-            request.setMessage(cmd.getEnhancedPrompt());
-            request.setName("Generation");
-            request.setWakeMode("now");
-            request.setTimeoutSeconds(300);
+            InvokeAgentRequest request = OpenClawInvokeRequestMapper.toInvokeRequest(cmd, callbackBaseUrl);
+            String callbackUrl = OpenClawInvokeRequestMapper.resolveCallbackUrl(cmd, callbackBaseUrl);
+            log.debug("OpenClaw invoke, taskId={}, agentId={}, callbackUrl={}", taskId, agentId, callbackUrl);
 
             InvokeAgentResult result = openClawClient.agent(request);
             if (result == null || !result.isSuccess()) {
@@ -72,7 +77,11 @@ public class OpenClawAiAgentInvoker implements AiAgentInvoker {
                         .message("OpenClaw invoke failed, status=" + status)
                         .build();
             }
-            log.info("OpenClaw invoke success, taskId={}, runId={}", taskId, result.getRunId());
+            if (taskId != null && result.getRunId() != null) {
+                taskIdToRunId.put(taskId, result.getRunId());
+            }
+            log.info("OpenClaw invoke success, taskId={}, runId={}, callbackUrl={}",
+                    taskId, result.getRunId(), callbackUrl);
             return SubmitResult.builder()
                     .taskId(taskId)
                     .providerTaskId(result.getRunId())
@@ -89,9 +98,35 @@ public class OpenClawAiAgentInvoker implements AiAgentInvoker {
         }
     }
 
+    /**
+     * 取消进行中的任务。
+     *
+     * <p>OpenClaw HTTP SDK 当前未暴露 Gateway run-cancel API；本方法在已知 {@code taskId → runId}
+     * 映射时通过 {@link OpenClawClient#wake(String, String)} 注入取消信号作为 best-effort，
+     * 否则记录明确警告日志。</p>
+     */
     @Override
     public void cancel(String taskId) {
-        log.info("OpenClaw task cancel requested: {}", taskId);
+        if (taskId == null || taskId.isEmpty()) {
+            log.warn("OpenClaw cancel ignored: taskId is empty");
+            return;
+        }
+        String runId = taskIdToRunId.remove(taskId);
+        if (runId == null) {
+            log.warn("OpenClaw cancel: no runId mapped for taskId={}. "
+                    + "OpenClaw HTTP SDK has no run-cancel endpoint; cancel is not applied.", taskId);
+            return;
+        }
+        log.info("OpenClaw cancel requested: taskId={}, runId={}. "
+                + "Applying best-effort wake cancel signal (HTTP SDK has no native run-cancel API).", taskId, runId);
+        try {
+            openClawClient.wake("Cancel agent run " + runId + " for business task " + taskId, "now");
+            log.info("OpenClaw cancel wake signal sent for taskId={}, runId={}", taskId, runId);
+        } catch (Exception e) {
+            log.error("OpenClaw cancel failed for taskId={}, runId={}: {}. "
+                    + "Gateway run-cancel is not available in openclaw-java-sdk HTTP client.",
+                    taskId, runId, e.getMessage(), e);
+        }
     }
 
     @Override
