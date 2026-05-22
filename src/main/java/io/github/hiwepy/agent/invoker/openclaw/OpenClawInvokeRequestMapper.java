@@ -181,13 +181,18 @@ public final class OpenClawInvokeRequestMapper {
         }
         String peerId = resolvePeerId(cmd);
         try {
-            return switch (resolveSessionStrategy(cmd)) {
-                case ONE_SHOT, EPHEMERAL_PEER -> null;
-                case EPHEMERAL_PEER_WITH_CORRELATION ->
-                        OpenClawSessionKeys.forEphemeralPeer(peerId, cmd.getTaskId().trim());
-                case STABLE -> OpenClawSessionKeys.forStableSession(cmd.getAgentId(), peerId);
-                case EXPLICIT -> null;
-            };
+            switch (resolveSessionStrategy(cmd)) {
+                case ONE_SHOT:
+                case EPHEMERAL_PEER:
+                case EXPLICIT:
+                    return null;
+                case EPHEMERAL_PEER_WITH_CORRELATION:
+                    return OpenClawSessionKeys.forEphemeralPeer(peerId, cmd.getTaskId().trim());
+                case STABLE:
+                    return OpenClawSessionKeys.forStableSession(cmd.getAgentId(), peerId);
+                default:
+                    return null;
+            }
         } catch (IllegalArgumentException ignored) {
             return null;
         }
@@ -211,18 +216,22 @@ public final class OpenClawInvokeRequestMapper {
      * 将 {@code openclaw.sessionMode} 映射为 Hook 会话策略。
      */
     private static HookSessionStrategy mapSessionMode(String mode, AgentInvokeCmd cmd, String peerId) {
-        return switch (mode.toLowerCase()) {
-            case "stable", "multi", "multi-turn" -> hasText(peerId) && hasText(cmd.getAgentId())
+        String normalized = mode.toLowerCase();
+        if ("stable".equals(normalized) || "multi".equals(normalized) || "multi-turn".equals(normalized)) {
+            return hasText(peerId) && hasText(cmd.getAgentId())
                     ? HookSessionStrategy.STABLE
                     : defaultSessionStrategy(cmd, peerId);
-            case "ephemeral", "oneshot", "one-shot" -> hasText(peerId) && hasText(cmd.getTaskId())
-                    ? HookSessionStrategy.EPHEMERAL_PEER_WITH_CORRELATION
-                    : hasText(peerId)
-                    ? HookSessionStrategy.EPHEMERAL_PEER
-                    : HookSessionStrategy.ONE_SHOT;
-            case "none", "anonymous" -> HookSessionStrategy.ONE_SHOT;
-            default -> defaultSessionStrategy(cmd, peerId);
-        };
+        }
+        if ("ephemeral".equals(normalized) || "oneshot".equals(normalized) || "one-shot".equals(normalized)) {
+            if (hasText(peerId) && hasText(cmd.getTaskId())) {
+                return HookSessionStrategy.EPHEMERAL_PEER_WITH_CORRELATION;
+            }
+            return hasText(peerId) ? HookSessionStrategy.EPHEMERAL_PEER : HookSessionStrategy.ONE_SHOT;
+        }
+        if ("none".equals(normalized) || "anonymous".equals(normalized)) {
+            return HookSessionStrategy.ONE_SHOT;
+        }
+        return defaultSessionStrategy(cmd, peerId);
     }
 
     /**

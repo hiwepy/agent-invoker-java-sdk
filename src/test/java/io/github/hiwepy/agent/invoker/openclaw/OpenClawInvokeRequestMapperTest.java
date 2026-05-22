@@ -5,6 +5,8 @@ import io.github.hiwepy.openclaw.InvokeAgentRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,7 +100,7 @@ class OpenClawInvokeRequestMapperTest {
     void shouldRespectExplicitSessionKeyVariable() {
         AgentInvokeCmd cmd = AgentInvokeCmd.builder()
                 .agentId("main")
-                .variables(java.util.Map.of("openclaw.sessionKey", "hook:custom:1"))
+                .variables(Collections.singletonMap("openclaw.sessionKey", "hook:custom:1"))
                 .build();
         assertEquals(OpenClawInvokeRequestMapper.HookSessionStrategy.EXPLICIT,
                 OpenClawInvokeRequestMapper.resolveSessionStrategy(cmd));
@@ -108,19 +110,20 @@ class OpenClawInvokeRequestMapperTest {
 
     @Test
     void shouldMapOpenClawVariablesToHookFields() {
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put("openclaw.deliver", true);
+        variables.put("openclaw.model", "openai/gpt-5.5");
+        variables.put("openclaw.thinking", "off");
+        variables.put("openclaw.wakeMode", "next-heartbeat");
+        variables.put("openclaw.timeoutSeconds", 120);
+        variables.put("openclaw.name", "CustomJob");
+        variables.put("openclaw.channel", "last");
+        variables.put("openclaw.to", "peer-9");
+        variables.put("tone", "casual");
         AgentInvokeCmd cmd = AgentInvokeCmd.builder()
                 .agentId("main")
                 .enhancedPrompt("hello")
-                .variables(java.util.Map.of(
-                        "openclaw.deliver", true,
-                        "openclaw.model", "openai/gpt-5.5",
-                        "openclaw.thinking", "off",
-                        "openclaw.wakeMode", "next-heartbeat",
-                        "openclaw.timeoutSeconds", 120,
-                        "openclaw.name", "CustomJob",
-                        "openclaw.channel", "last",
-                        "openclaw.to", "peer-9",
-                        "tone", "casual"))
+                .variables(variables)
                 .build();
 
         InvokeAgentRequest request = OpenClawInvokeRequestMapper.toInvokeRequest(cmd, "http://base");

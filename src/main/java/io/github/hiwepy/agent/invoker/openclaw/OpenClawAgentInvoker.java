@@ -145,14 +145,20 @@ public class OpenClawAgentInvoker implements AgentInvoker {
                                                         InvokeAgentRequest request,
                                                         String peerId,
                                                         OpenClawInvokeRequestMapper.HookSessionStrategy strategy) {
-        return switch (strategy) {
-            case ONE_SHOT -> openClawClient.agentOneShot(request);
-            case EPHEMERAL_PEER -> openClawClient.agentOneShotForPeer(requirePeerId(peerId), request);
-            case EPHEMERAL_PEER_WITH_CORRELATION ->
-                    openClawClient.agentOneShotForPeer(requirePeerId(peerId), cmd.getTaskId().trim(), request);
-            case STABLE -> openClawClient.agentWithStableSession(cmd.getAgentId(), requirePeerId(peerId), request);
-            case EXPLICIT -> openClawClient.agent(request);
-        };
+        switch (strategy) {
+            case ONE_SHOT:
+                return openClawClient.agentOneShot(request);
+            case EPHEMERAL_PEER:
+                return openClawClient.agentOneShotForPeer(requirePeerId(peerId), request);
+            case EPHEMERAL_PEER_WITH_CORRELATION:
+                return openClawClient.agentOneShotForPeer(requirePeerId(peerId), cmd.getTaskId().trim(), request);
+            case STABLE:
+                return openClawClient.agentWithStableSession(cmd.getAgentId(), requirePeerId(peerId), request);
+            case EXPLICIT:
+                return openClawClient.agent(request);
+            default:
+                throw new IllegalArgumentException("Unsupported session strategy: " + strategy);
+        }
     }
 
     /**
