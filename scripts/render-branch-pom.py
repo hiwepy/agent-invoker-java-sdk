@@ -85,35 +85,35 @@ DEPS_BLOCK_TEMPLATE = """
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${{slf4j.version}}</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${{jackson.version}}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.hiwepy</groupId>
             <artifactId>openclaw-java-sdk</artifactId>
-            <version>${{openclaw-java-sdk.version}}</version>
+            <version>${openclaw-java-sdk.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${{lombok.version}}</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${{junit.version}}</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>${{slf4j.version}}</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -300,10 +300,10 @@ def write_full_j8_27(version: str) -> None:
                 <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-install-plugin</artifactId><version>${{maven-install-plugin.version}}</version></plugin>
                 <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-resources-plugin</artifactId><version>${{maven-resources-plugin.version}}</version><configuration><encoding>${{project.build.sourceEncoding}}</encoding></configuration></plugin>
                 <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-release-plugin</artifactId><version>${{maven-release-plugin.version}}</version><configuration><tagNameFormat>v@${{project.version}}</tagNameFormat><autoVersionSubmodules>true</autoVersionSubmodules><useReleaseProfile>false</useReleaseProfile><releaseProfiles>release</releaseProfiles><goals>deploy</goals></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-source-plugin</artifactId><version>${{maven-source-plugin.version}}</version><configuration><attach>true</attach></configuration><executions><execution><id>attach-sources</id><goals><goal>jar-no-fork</goal></goals></execution></plugin>
+                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-source-plugin</artifactId><version>${{maven-source-plugin.version}}</version><configuration><attach>true</attach></configuration><executions><execution><id>attach-sources</id><goals><goal>jar-no-fork</goal></goals></execution></executions></plugin>
                 <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>${{maven-surefire-plugin.version}}</version><configuration><skip>true</skip><skipTests>true</skipTests></configuration></plugin>
                 <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>${{maven-jar-plugin.version}}</version><configuration><skipIfEmpty>true</skipIfEmpty></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-javadoc-plugin</artifactId><version>${{maven-javadoc-plugin.version}}</version><configuration><failOnError>false</failOnError></configuration><executions><execution><id>attach-javadocs</id><phase>package</phase><goals><goal>jar</goal></goals></execution></plugin>
+                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-javadoc-plugin</artifactId><version>${{maven-javadoc-plugin.version}}</version><configuration><failOnError>false</failOnError></configuration><executions><execution><id>attach-javadocs</id><phase>package</phase><goals><goal>jar</goal></goals></execution></executions></plugin>
                 <plugin><groupId>org.sonatype.central</groupId><artifactId>central-publishing-maven-plugin</artifactId><version>${{maven-central-publishing-plugin.version}}</version><extensions>true</extensions><configuration><publishingServerId>central</publishingServerId><autoPublish>true</autoPublish><waitUntil>published</waitUntil></configuration></plugin>
             </plugins>
         </pluginManagement>
