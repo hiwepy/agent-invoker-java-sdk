@@ -63,9 +63,13 @@ public class OpenClawAgentInvoker implements AgentInvoker {
         try {
             InvokeAgentRequest request = OpenClawInvokeRequestMapper.toInvokeRequest(cmd, callbackBaseUrl);
             String callbackUrl = OpenClawInvokeRequestMapper.resolveCallbackUrl(cmd, callbackBaseUrl);
-            log.debug("OpenClaw invoke, taskId={}, agentId={}, callbackUrl={}", taskId, agentId, callbackUrl);
+            String peerId = OpenClawInvokeRequestMapper.resolvePeerId(cmd);
+            OpenClawInvokeRequestMapper.HookSessionStrategy strategy =
+                    OpenClawInvokeRequestMapper.resolveSessionStrategy(cmd);
+            log.debug("OpenClaw invoke, taskId={}, agentId={}, peerId={}, sessionStrategy={}, callbackUrl={}",
+                    taskId, agentId, peerId, strategy, callbackUrl);
 
-            InvokeAgentResult result = openClawClient.agent(request);
+            InvokeAgentResult result = invokeWithSessionStrategy(cmd, request, peerId, strategy);
             if (result == null || !result.isSuccess()) {
                 int status = result != null ? result.getHttpStatus() : -1;
                 String body = result != null ? result.getRawBody() : null;
@@ -126,6 +130,39 @@ public class OpenClawAgentInvoker implements AgentInvoker {
                     + "Gateway run-cancel is not available in openclaw-java-sdk HTTP client.",
                     taskId, runId, e.getMessage(), e);
         }
+    }
+
+    /**
+     * 按会话策略调用 {@link OpenClawClient} 便捷方法，与 {@link OpenClawSessionKeys} 语义一致。
+     *
+     * @param cmd       业务命令
+     * @param request   已组装的 Hook 请求（不含动态 sessionKey，{@link OpenClawInvokeRequestMapper.HookSessionStrategy#EXPLICIT} 除外）
+     * @param peerId    业务 peer（可为 null）
+     * @param strategy  会话策略
+     * @return Gateway 响应
+     */
+    private InvokeAgentResult invokeWithSessionStrategy(AgentInvokeCmd cmd,
+                                                        InvokeAgentRequest request,
+                                                        String peerId,
+                                                        OpenClawInvokeRequestMapper.HookSessionStrategy strategy) {
+        return switch (strategy) {
+            case ONE_SHOT -> openClawClient.agentOneShot(request);
+            case EPHEMERAL_PEER -> openClawClient.agentOneShotForPeer(requirePeerId(peerId), request);
+            case EPHEMERAL_PEER_WITH_CORRELATION ->
+                    openClawClient.agentOneShotForPeer(requirePeerId(peerId), cmd.getTaskId().trim(), request);
+            case STABLE -> openClawClient.agentWithStableSession(cmd.getAgentId(), requirePeerId(peerId), request);
+            case EXPLICIT -> openClawClient.agent(request);
+        };
+    }
+
+    /**
+     * 校验 peerId 非空；策略要求 peer 但命令未提供时回退为匿名一次性 Hook 的语义由 mapper 保证，此处作防御性校验。
+     */
+    private static String requirePeerId(String peerId) {
+        if (peerId == null || peerId.isEmpty()) {
+            throw new IllegalArgumentException("peerId is required for this session strategy");
+        }
+        return peerId;
     }
 
     @Override

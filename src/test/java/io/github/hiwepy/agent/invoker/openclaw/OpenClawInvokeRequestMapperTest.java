@@ -47,7 +47,10 @@ class OpenClawInvokeRequestMapperTest {
         assertEquals("main", request.getAgentId());
         assertEquals("xiaohongshu", request.getChannel());
         assertEquals("u1", request.getTo());
-        assertEquals("invoker:t1:u1:task-001", request.getSessionKey());
+        assertEquals(OpenClawInvokeRequestMapper.HookSessionStrategy.EPHEMERAL_PEER_WITH_CORRELATION,
+                OpenClawInvokeRequestMapper.resolveSessionStrategy(cmd));
+        assertEquals("hook:t1.u1:task-001", OpenClawInvokeRequestMapper.buildSessionKey(cmd));
+        assertNull(request.getSessionKey());
         assertTrue(request.getMessage().contains("Generate post"));
         assertTrue(request.getMessage().contains("http://localhost/save"));
         assertTrue(request.getMessage().contains("task_id=\"task-001\""));
@@ -62,6 +65,72 @@ class OpenClawInvokeRequestMapperTest {
                 .tenantId("tenant-a")
                 .taskId("task-b")
                 .build();
-        assertEquals("invoker:tenant-a:task-b", OpenClawInvokeRequestMapper.buildSessionKey(cmd));
+        assertEquals("hook:tenant-a:task-b", OpenClawInvokeRequestMapper.buildSessionKey(cmd));
+    }
+
+    @Test
+    void shouldUseStableSessionWhenBusinessAgentWithoutTaskId() {
+        AgentInvokeCmd cmd = AgentInvokeCmd.builder()
+                .tenantId("t1")
+                .userId("u1")
+                .businessAgentId("biz-agent")
+                .agentId("main")
+                .build();
+        assertEquals(OpenClawInvokeRequestMapper.HookSessionStrategy.STABLE,
+                OpenClawInvokeRequestMapper.resolveSessionStrategy(cmd));
+        assertEquals("hook:main:t1.u1.biz-agent", OpenClawInvokeRequestMapper.buildSessionKey(cmd));
+        assertEquals("t1.u1.biz-agent", OpenClawInvokeRequestMapper.resolvePeerId(cmd));
+    }
+
+    @Test
+    void shouldUseEphemeralPeerWhenUserWithoutTaskOrBusinessAgent() {
+        AgentInvokeCmd cmd = AgentInvokeCmd.builder()
+                .tenantId("t1")
+                .userId("u1")
+                .agentId("main")
+                .build();
+        assertEquals(OpenClawInvokeRequestMapper.HookSessionStrategy.EPHEMERAL_PEER,
+                OpenClawInvokeRequestMapper.resolveSessionStrategy(cmd));
+        assertNull(OpenClawInvokeRequestMapper.buildSessionKey(cmd));
+    }
+
+    @Test
+    void shouldRespectExplicitSessionKeyVariable() {
+        AgentInvokeCmd cmd = AgentInvokeCmd.builder()
+                .agentId("main")
+                .variables(java.util.Map.of("openclaw.sessionKey", "hook:custom:1"))
+                .build();
+        assertEquals(OpenClawInvokeRequestMapper.HookSessionStrategy.EXPLICIT,
+                OpenClawInvokeRequestMapper.resolveSessionStrategy(cmd));
+        InvokeAgentRequest request = OpenClawInvokeRequestMapper.toInvokeRequest(cmd, "http://base");
+        assertEquals("hook:custom:1", request.getSessionKey());
+    }
+
+    @Test
+    void shouldMapOpenClawVariablesToHookFields() {
+        AgentInvokeCmd cmd = AgentInvokeCmd.builder()
+                .agentId("main")
+                .enhancedPrompt("hello")
+                .variables(java.util.Map.of(
+                        "openclaw.deliver", true,
+                        "openclaw.model", "openai/gpt-5.5",
+                        "openclaw.thinking", "off",
+                        "openclaw.wakeMode", "next-heartbeat",
+                        "openclaw.timeoutSeconds", 120,
+                        "openclaw.name", "CustomJob",
+                        "openclaw.channel", "last",
+                        "openclaw.to", "peer-9",
+                        "tone", "casual"))
+                .build();
+
+        InvokeAgentRequest request = OpenClawInvokeRequestMapper.toInvokeRequest(cmd, "http://base");
+        assertEquals(true, request.getDeliver());
+        assertEquals("openai/gpt-5.5", request.getModel());
+        assertEquals("off", request.getThinking());
+        assertEquals("next-heartbeat", request.getWakeMode());
+        assertEquals(120, request.getTimeoutSeconds());
+        assertEquals("CustomJob", request.getName());
+        assertEquals("last", request.getChannel());
+        assertEquals("peer-9", request.getTo());
     }
 }
