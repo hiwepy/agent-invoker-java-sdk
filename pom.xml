@@ -6,7 +6,7 @@
 
     <groupId>io.github.hiwepy</groupId>
     <artifactId>agent-invoker-java-sdk</artifactId>
-    <version>4.0.x.20260525-SNAPSHOT</version>
+    <version>4.0.x.20260526-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>AI Agent Invoker abstraction SDK — Spring Boot 4 line (JDK 17, SLF4J 2.x)</description>
@@ -73,7 +73,7 @@
         <jackson.version>2.17.2</jackson.version>
         <junit.version>5.11.4</junit.version>
         <lombok.version>1.18.36</lombok.version>
-        <openclaw-java-sdk.version>4.0.x.20260525-SNAPSHOT</openclaw-java-sdk.version>
+        <openclaw-java-sdk.version>4.0.x.20260526-SNAPSHOT</openclaw-java-sdk.version>
 
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
