@@ -2,11 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.hiwepy</groupId>
     <artifactId>agent-invoker-java-sdk</artifactId>
-    <version>2.7.x.20260526-SNAPSHOT</version>
+    <version>2.7.x.20260527-SNAPSHOT<\/version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>AI Agent Invoker abstraction SDK — Spring Boot 2.7.x line (JDK 8)</description>
@@ -70,7 +68,7 @@
         <jackson.version>2.13.5</jackson.version>
         <junit.version>5.8.2</junit.version>
         <lombok.version>1.18.30</lombok.version>
-        <openclaw-java-sdk.version>2.7.x.20260526-SNAPSHOT</openclaw-java-sdk.version>
+        <openclaw-java-sdk.version>2.7.x.20260527-SNAPSHOT</openclaw-java-sdk.version>
 
         <maven.version>3.0</maven.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -91,64 +89,38 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-clean-plugin</artifactId><version>${maven-clean-plugin.version}</version></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>${maven-compiler-plugin.version}</version><configuration><source>${java.version}</source><target>${java.version}</target><encoding>${project.build.sourceEncoding}</encoding><maxmem>512M</maxmem></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-deploy-plugin</artifactId><version>${maven-deploy-plugin.version}</version></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId><version>${maven-enforcer-plugin.version}</version><executions><execution><id>default-cli</id><goals><goal>enforce</goal></goals><phase>validate</phase><configuration><rules><requireMavenVersion><message>You are running an older version of Maven.</message><version>[${maven.version}.0,)</version></requireMavenVersion><requireJavaVersion><message>You are running an older version of Java.</message><version>[${java.version},)</version></requireJavaVersion></rules></configuration></execution></executions></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-gpg-plugin</artifactId><version>${maven-gpg-plugin.version}</version><executions><execution><id>sign-artifacts</id><phase>verify</phase><goals><goal>sign</goal></goals></execution></executions></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-install-plugin</artifactId><version>${maven-install-plugin.version}</version></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-resources-plugin</artifactId><version>${maven-resources-plugin.version}</version><configuration><encoding>${project.build.sourceEncoding}</encoding></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-release-plugin</artifactId><version>${maven-release-plugin.version}</version><configuration><tagNameFormat>v@${project.version}</tagNameFormat><autoVersionSubmodules>true</autoVersionSubmodules><useReleaseProfile>false</useReleaseProfile><releaseProfiles>release</releaseProfiles><goals>deploy</goals></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-source-plugin</artifactId><version>${maven-source-plugin.version}</version><configuration><attach>true</attach></configuration><executions><execution><id>attach-sources</id><goals><goal>jar-no-fork</goal></goals></execution></executions></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>${maven-surefire-plugin.version}</version><configuration><skip>true</skip><skipTests>true</skipTests></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId><version>${maven-jar-plugin.version}</version><configuration><skipIfEmpty>true</skipIfEmpty></configuration></plugin>
-                <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-javadoc-plugin</artifactId><version>${maven-javadoc-plugin.version}</version><configuration><failOnError>false</failOnError></configuration><executions><execution><id>attach-javadocs</id><phase>package</phase><goals><goal>jar</goal></goals></execution></executions></plugin>
-                <plugin><groupId>org.sonatype.central</groupId><artifactId>central-publishing-maven-plugin</artifactId><version>${maven-central-publishing-plugin.version}</version><extensions>true</extensions><configuration><publishingServerId>central</publishingServerId><autoPublish>true</autoPublish><waitUntil>published</waitUntil></configuration></plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId></plugin>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId></plugin>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId></plugin>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId></plugin>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-source-plugin</artifactId></plugin>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-install-plugin</artifactId></plugin>
-            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-deploy-plugin</artifactId></plugin>
         </plugins>
     </build>
 
 
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.github.hiwepy</groupId>
             <artifactId>openclaw-java-sdk</artifactId>
             <version>${openclaw-java-sdk.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
             <scope>test</scope>
